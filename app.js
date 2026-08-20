@@ -5,6 +5,8 @@ const spriteImage = new Image();
 spriteImage.src = "assets/nr-character-sprite.png";
 const sideWalkImage = new Image();
 sideWalkImage.src = "assets/nr-side-walk-sprite.png";
+const backWalkImage = new Image();
+backWalkImage.src = "assets/nr-back-walk-sprite.png";
 
 const spriteFrames = {
   ready: false,
@@ -14,7 +16,8 @@ const spriteFrames = {
   right: null,
   walkDown: [],
   walkLeft: [],
-  walkRight: []
+  walkRight: [],
+  walkBack: []
 };
 
 const state = {
@@ -55,6 +58,13 @@ const spriteCrops = {
     { x: 610, y: 535, w: 220, h: 318 },
     { x: 950, y: 535, w: 220, h: 318 },
     { x: 1290, y: 535, w: 220, h: 318 }
+  ],
+  walkBack: [
+    { x: 80, y: 170, w: 230, h: 490 },
+    { x: 430, y: 170, w: 230, h: 490 },
+    { x: 780, y: 170, w: 230, h: 490 },
+    { x: 1130, y: 170, w: 230, h: 490 },
+    { x: 1480, y: 170, w: 230, h: 490 }
   ]
 };
 
@@ -136,6 +146,9 @@ function drawPerson() {
   } else if (moving && direction === "right") {
     const index = Math.floor(state.time / 120) % spriteFrames.walkRight.length;
     frame = spriteFrames.walkRight[index];
+  } else if (moving && direction === "back") {
+    const index = Math.floor(state.time / 120) % spriteFrames.walkBack.length;
+    frame = spriteFrames.walkBack[index];
   } else if (direction === "back") {
     frame = spriteFrames.back;
   } else if (direction === "left") {
@@ -182,7 +195,7 @@ function update(delta) {
 }
 
 function prepareSpriteFrames() {
-  if (!spriteImage.complete || !sideWalkImage.complete) return;
+  if (!spriteImage.complete || !sideWalkImage.complete || !backWalkImage.complete) return;
   spriteFrames.front = makeTransparentFrame(spriteImage, spriteCrops.front);
   spriteFrames.back = makeTransparentFrame(spriteImage, spriteCrops.back);
   spriteFrames.left = makeTransparentFrame(spriteImage, spriteCrops.left);
@@ -190,6 +203,7 @@ function prepareSpriteFrames() {
   spriteFrames.walkDown = spriteCrops.walkDown.map((crop) => makeTransparentFrame(spriteImage, crop));
   spriteFrames.walkLeft = spriteCrops.walkLeft.map((crop) => makeTransparentFrame(sideWalkImage, crop));
   spriteFrames.walkRight = spriteCrops.walkRight.map((crop) => makeTransparentFrame(sideWalkImage, crop));
+  spriteFrames.walkBack = spriteCrops.walkBack.map((crop) => makeTransparentFrame(backWalkImage, crop));
   spriteFrames.ready = true;
 }
 
@@ -236,6 +250,8 @@ window.addEventListener("keyup", (event) => {
 resize();
 spriteImage.addEventListener("load", prepareSpriteFrames);
 sideWalkImage.addEventListener("load", prepareSpriteFrames);
+backWalkImage.addEventListener("load", prepareSpriteFrames);
 if (spriteImage.complete) prepareSpriteFrames();
 if (sideWalkImage.complete) prepareSpriteFrames();
+if (backWalkImage.complete) prepareSpriteFrames();
 requestAnimationFrame(tick);
