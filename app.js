@@ -309,8 +309,37 @@ function makeTransparentFrame(image, crop) {
   for (let pixel = 0; pixel < transparent.length; pixel += 1) {
     if (transparent[pixel]) data[pixel * 4 + 3] = 0;
   }
+  removeBakedFootShadow(data, crop.w, crop.h);
   frameCtx.putImageData(imageData, 0, 0);
   return frameCanvas;
+}
+
+function removeBakedFootShadow(data, width, height) {
+  const centerX = width / 2;
+  const centerY = height * 0.9;
+  const radiusX = width * 0.56;
+  const radiusY = height * 0.14;
+  const shadowTop = height * 0.68;
+
+  for (let y = Math.floor(shadowTop); y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const dx = (x - centerX) / radiusX;
+      const dy = (y - centerY) / radiusY;
+      if (dx * dx + dy * dy > 1) continue;
+
+      const index = (y * width + x) * 4;
+      const r = data[index];
+      const g = data[index + 1];
+      const b = data[index + 2];
+      const brightness = Math.max(r, g, b);
+      const colorSpread = Math.max(r, g, b) - Math.min(r, g, b);
+      const isNearFootCenter = Math.abs(x - centerX) < width * 0.22 && y < height * 0.84;
+
+      if (!isNearFootCenter && brightness < 42 && colorSpread < 16) {
+        data[index + 3] = 0;
+      }
+    }
+  }
 }
 
 function tick(time = 0) {
