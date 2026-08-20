@@ -3,127 +3,35 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>SEARIG-NR | Playable Portfolio World</title>
+    <title>SEARIG-NR | Playable Portfolio Game</title>
     <meta
       name="description"
-      content="A playable portfolio world for Nakul Rajawat, also known as SEARIG-NR. Explore projects, skills, journey, contact, and resume through an interactive map."
+      content="Playable SEARIG-NR developer portfolio with an isometric game map, movement controls, clickable locations, project tree, skills lab, journey, and contact tower."
     >
-    <meta property="og:title" content="SEARIG-NR | Playable Portfolio World">
-    <meta
-      property="og:description"
-      content="Walk through a glowing portfolio island with a project tree, tech lab, developer studio, career road, and contact tower."
-    >
-    <meta name="theme-color" content="#120817">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Permanent+Marker&display=swap" rel="stylesheet">
+    <meta property="og:title" content="SEARIG-NR | Playable Portfolio Game">
+    <meta property="og:description" content="Explore Nakul Rajawat's portfolio as a playable isometric game map.">
+    <meta name="theme-color" content="#050812">
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-    <canvas id="world" aria-label="Playable SEARIG-NR portfolio world"></canvas>
+    <main class="game" aria-label="Playable SEARIG-NR portfolio map">
+      <img class="game__map" src="assets/portfolio-game-map.png" alt="SEARIG-NR isometric portfolio island map">
+      <canvas id="playLayer" class="game__canvas" aria-label="Playable character and interactions"></canvas>
 
-    <div id="boot" class="boot" aria-hidden="true">
-      <div class="boot__grid"></div>
-      <div class="boot__name" data-text="SEARIG-NR">SEARIG-NR</div>
-      <div class="boot__sub">Portfolio world loading</div>
-      <div class="boot__scan"></div>
-    </div>
-
-    <header class="topbar">
-      <a class="brand" href="#home" data-jump="spawn" aria-label="SEARIG-NR spawn point">
-        <span class="brand__avatar" aria-hidden="true"></span>
-        <span class="brand__mark">NR</span>
-        <span><strong>SEARIG-NR</strong><small>Developer Portfolio</small></span>
-      </a>
-
-      <nav class="quick-nav" aria-label="Quick mode navigation">
-        <button class="quick-nav__item is-active" type="button" data-jump="spawn">Home</button>
-        <button class="quick-nav__item" type="button" data-jump="about">About</button>
-        <button class="quick-nav__item" type="button" data-jump="skills">Skills</button>
-        <button class="quick-nav__item" type="button" data-jump="projects">Projects</button>
-        <button class="quick-nav__item" type="button" data-jump="journey">Journey</button>
-        <button class="quick-nav__item" type="button" data-jump="contact">Contact</button>
-      </nav>
-
-      <div class="topbar__actions">
-        <a class="resume-link" href="resume.html">Resume</a>
-        <button class="mode-toggle" id="modeToggle" type="button" aria-pressed="false">Play Mode</button>
+      <div class="game__hint is-hidden" id="hint" aria-live="polite">
+        Use <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> to move. Press <kbd>E</kbd> near a location.
       </div>
-    </header>
 
-    <main class="hud-shell">
-      <section class="intro-panel" id="home">
-        <p class="eyebrow">Spawn / Home Base</p>
-        <h1>Hi, I'm <span>Nakul Rajawat</span></h1>
-        <p class="role">Software Developer | Full-Stack Developer | AI Enthusiast</p>
-        <div class="player-stats" aria-label="Player stats">
-          <span class="hearts" aria-label="Health">♥ ♥ ♥ ♥ ◆</span>
-          <span class="xp"><i></i></span>
-          <span>Lv. 12</span>
-        </div>
-        <p class="intro-copy">
-          Walk through my portfolio world. Visit the Project Tree, enter the Tech Lab,
-          follow my Career Road, and reach the Contact Tower.
-        </p>
-        <div class="intro-actions">
-          <button class="primary-action" id="startButton" type="button">Start Exploring</button>
-          <button class="secondary-action" type="button" data-jump="projects">Go To Project Tree</button>
-        </div>
+      <section class="modal" id="modal" aria-hidden="true" aria-live="polite">
+        <button class="modal__close" id="modalClose" type="button" aria-label="Return to world">×</button>
+        <p class="modal__eyebrow" id="modalEyebrow">Location</p>
+        <h1 id="modalTitle">Home Base</h1>
+        <p id="modalSummary"></p>
+        <div class="modal__content" id="modalContent"></div>
+        <div class="modal__actions" id="modalActions"></div>
+        <p class="modal__return"><kbd>Esc</kbd> Return to World</p>
       </section>
-
-      <aside class="location-panel" id="locationPanel" aria-live="polite">
-        <p class="eyebrow">Current Location</p>
-        <h2>Spawn / Home Base</h2>
-        <p>Visitor spawns here; sees name, developer title, and controls.</p>
-        <div class="location-panel__hint">Click a location or press <kbd>E</kbd> near one.</div>
-      </aside>
-
-      <aside class="controls-panel" aria-label="Controls">
-        <div>
-          <strong>Play Mode</strong>
-          <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> Move</span>
-          <span><kbd>E</kbd> Interact</span>
-          <span><kbd>Shift</kbd> Run</span>
-          <span><kbd>Esc</kbd> Menu</span>
-        </div>
-        <div>
-          <strong>Quick Mode</strong>
-          <span>Use the top menu to fly to any location.</span>
-        </div>
-      </aside>
-
-      <aside class="minimap" aria-label="World map">
-        <div class="minimap__ring">
-          <span class="dot dot--spawn"></span>
-          <span class="dot dot--about"></span>
-          <span class="dot dot--skills"></span>
-          <span class="dot dot--projects"></span>
-          <span class="dot dot--journey"></span>
-          <span class="dot dot--contact"></span>
-          <span class="avatar-dot" id="avatarDot"></span>
-        </div>
-      </aside>
-
-      <aside class="status-panel" aria-label="World status">
-        <p class="eyebrow">Status</p>
-        <span><strong>Location:</strong> <b id="statusLocation">Home Base</b></span>
-        <span><strong>Time:</strong> 09:41 PM</span>
-        <span><strong>Weather:</strong> Clear Night</span>
-        <span><strong>Coins:</strong> 125</span>
-      </aside>
     </main>
-
-    <section class="drawer" id="drawer" aria-live="polite" aria-hidden="true">
-      <button class="drawer__close" id="drawerClose" type="button" aria-label="Close detail panel">×</button>
-      <p class="eyebrow" id="drawerEyebrow">Project Tree</p>
-      <h2 id="drawerTitle">MLSU-LMS</h2>
-      <p id="drawerSummary"></p>
-      <div class="drawer__body" id="drawerBody"></div>
-      <div class="drawer__actions" id="drawerActions"></div>
-      <div class="drawer__hint"><kbd>ESC</kbd> Return to World</div>
-    </section>
-
-    <div class="toast" id="toast">Approach a glowing location and press E.</div>
 
     <script src="app.js"></script>
   </body>
