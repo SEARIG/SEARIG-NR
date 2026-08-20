@@ -3,34 +3,29 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>SEARIG-NR | Playable Portfolio Game</title>
+    <title>SEARIG-NR | Portfolio Space</title>
     <meta
       name="description"
-      content="Playable SEARIG-NR developer portfolio with an isometric game map, movement controls, clickable locations, project tree, skills lab, journey, and contact tower."
+      content="A clean playable portfolio space for SEARIG-NR. We will add portfolio locations step by step."
     >
-    <meta property="og:title" content="SEARIG-NR | Playable Portfolio Game">
-    <meta property="og:description" content="Explore Nakul Rajawat's portfolio as a playable isometric game map.">
-    <meta name="theme-color" content="#050812">
+    <meta name="theme-color" content="#080b12">
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-    <main class="game" aria-label="Playable SEARIG-NR portfolio map">
-      <img class="game__map" src="assets/portfolio-game-map.png" alt="SEARIG-NR isometric portfolio island map">
-      <canvas id="playLayer" class="game__canvas" aria-label="Playable character and interactions"></canvas>
+    <main class="space" aria-label="Blank playable portfolio space">
+      <canvas id="spaceCanvas" aria-label="Empty portfolio space with playable person"></canvas>
 
-      <div class="game__hint is-hidden" id="hint" aria-live="polite">
-        Use <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> to move. Press <kbd>E</kbd> near a location.
-      </div>
-
-      <section class="modal" id="modal" aria-hidden="true" aria-live="polite">
-        <button class="modal__close" id="modalClose" type="button" aria-label="Return to world">×</button>
-        <p class="modal__eyebrow" id="modalEyebrow">Location</p>
-        <h1 id="modalTitle">Home Base</h1>
-        <p id="modalSummary"></p>
-        <div class="modal__content" id="modalContent"></div>
-        <div class="modal__actions" id="modalActions"></div>
-        <p class="modal__return"><kbd>Esc</kbd> Return to World</p>
+      <section class="intro" aria-label="Portfolio setup">
+        <p>SEARIG-NR</p>
+        <h1>Blank Portfolio Space</h1>
+        <span>One person. Empty world. We will add things little by little.</span>
       </section>
+
+      <aside class="controls" aria-label="Controls">
+        <strong>Controls</strong>
+        <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> Move</span>
+        <span><kbd>Shift</kbd> Run</span>
+      </aside>
     </main>
 
     <script src="app.js"></script>
