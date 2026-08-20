@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Nakul Rajawat | Resume</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+      body {
+        overflow: auto;
+        background: #0b1018;
+      }
+
+      .resume-page {
+        width: min(920px, calc(100vw - 32px));
+        margin: 48px auto;
+        padding: 36px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel-strong);
+      }
+
+      .resume-page h1 {
+        margin: 0 0 8px;
+        font-size: clamp(2.4rem, 6vw, 4.2rem);
+      }
+
+      .resume-page h2 {
+        margin-top: 30px;
+      }
+
+      .resume-page p,
+      .resume-page li {
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      .resume-back {
+        display: inline-flex;
+        margin-bottom: 28px;
+        color: var(--green);
+        font-weight: 900;
+      }
+
+      @media print {
+        body {
+          color: #111827;
+          background: #fff;
+        }
+
+        .resume-page {
+          margin: 0;
+          border: 0;
+          box-shadow: none;
+          background: #fff;
+        }
+
+        .resume-back {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="resume-page">
+      <a class="resume-back" href="index.html">← Back to portfolio</a>
+      <h1>Nakul Rajawat</h1>
+      <p><strong>Software Developer | Full-Stack Developer | AI Enthusiast</strong></p>
+      <p>2nd year engineering student at IET, MLSU Udaipur building practical web, mobile, and management applications.</p>
+
+      <h2>Projects</h2>
+      <ul>
+        <li>Library.exe: Library management with barcode, ISBN, issue/return, reports, PHP, and MySQL.</li>
+        <li>MLSU-LMS: Library platform with student app, QR ID, automation, penalties, reminders, and Firebase.</li>
+        <li>College CMS: College management system with roles, attendance, timetable, messaging, payroll, Firebase, and SQLite.</li>
+        <li>Task48: Productivity and task management platform using HTML, CSS, JS, PHP, and MySQL.</li>
+      </ul>
+
+      <h2>Skills</h2>
+      <p>HTML, CSS, JavaScript, Tailwind CSS, Bootstrap, Java, Python, PHP, Firebase, MySQL, SQLite, Git, Android Studio, AI Prompt Engineering, Codex.</p>
+    </main>
+  </body>
+</html>
