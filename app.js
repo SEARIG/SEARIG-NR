@@ -151,10 +151,6 @@ function drawPlain() {
 
 function drawPerson() {
   const { x, y, moving, direction } = state.person;
-  ctx.fillStyle = "rgba(0, 0, 0, 0.38)";
-  ctx.beginPath();
-  ctx.ellipse(x, y + 25, 28, 10, 0, 0, Math.PI * 2);
-  ctx.fill();
 
   if (!spriteFrames.ready) return;
 
