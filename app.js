@@ -1,6 +1,18 @@
 const canvas = document.querySelector("#spaceCanvas");
 const ctx = canvas.getContext("2d");
 
+const spriteImage = new Image();
+spriteImage.src = "assets/nr-character-sprite.png";
+
+const spriteFrames = {
+  ready: false,
+  front: null,
+  back: null,
+  left: null,
+  right: null,
+  walkDown: []
+};
+
 const state = {
   width: 0,
   height: 0,
@@ -11,8 +23,23 @@ const state = {
   person: {
     x: 0,
     y: 0,
-    moving: false
+    moving: false,
+    direction: "front"
   }
+};
+
+const spriteCrops = {
+  front: { x: 94, y: 105, w: 160, h: 326 },
+  back: { x: 402, y: 106, w: 170, h: 326 },
+  left: { x: 704, y: 105, w: 146, h: 326 },
+  right: { x: 990, y: 105, w: 146, h: 326 },
+  walkDown: [
+    { x: 132, y: 588, w: 176, h: 318 },
+    { x: 405, y: 588, w: 176, h: 318 },
+    { x: 682, y: 588, w: 176, h: 318 },
+    { x: 960, y: 588, w: 176, h: 318 },
+    { x: 1240, y: 588, w: 176, h: 318 }
+  ]
 };
 
 function resize() {
@@ -75,56 +102,34 @@ function drawSpace() {
 }
 
 function drawPerson() {
-  const { x, y, moving } = state.person;
-  const step = Math.sin(state.time * (moving ? 0.018 : 0.006));
-
-  ctx.save();
-  ctx.translate(x, y);
-
+  const { x, y, moving, direction } = state.person;
   ctx.fillStyle = "rgba(0, 0, 0, 0.38)";
   ctx.beginPath();
-  ctx.ellipse(0, 31, 22, 8, 0, 0, Math.PI * 2);
+  ctx.ellipse(x, y + 25, 28, 10, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.strokeStyle = "#10131a";
-  ctx.lineWidth = 6;
-  ctx.lineCap = "round";
-  ctx.beginPath();
-  ctx.moveTo(-5, 6);
-  ctx.lineTo(-10 - 6 * step, 26);
-  ctx.moveTo(5, 6);
-  ctx.lineTo(10 + 6 * step, 26);
-  ctx.stroke();
+  if (!spriteFrames.ready) return;
 
-  ctx.strokeStyle = "#e5b084";
-  ctx.lineWidth = 5;
-  ctx.beginPath();
-  ctx.moveTo(-12, -8);
-  ctx.lineTo(-20 - 4 * step, 8);
-  ctx.moveTo(12, -8);
-  ctx.lineTo(20 + 4 * step, 8);
-  ctx.stroke();
+  let frame = spriteFrames.front;
+  if (moving && direction === "front") {
+    const index = Math.floor(state.time / 120) % spriteFrames.walkDown.length;
+    frame = spriteFrames.walkDown[index];
+  } else if (direction === "back") {
+    frame = spriteFrames.back;
+  } else if (direction === "left") {
+    frame = spriteFrames.left;
+  } else if (direction === "right") {
+    frame = spriteFrames.right;
+  }
 
-  ctx.fillStyle = "#172232";
-  pixelRect(-12, -24, 24, 35);
-  ctx.fillStyle = "#243a55";
-  pixelRect(-8, -20, 16, 25);
-  ctx.fillStyle = "#1e2632";
-  pixelRect(-9, 11, 8, 18);
-  pixelRect(1, 11, 8, 18);
+  const drawHeight = 128;
+  const drawWidth = drawHeight * (frame.width / frame.height);
+  const bob = moving ? Math.sin(state.time * 0.018) * 2 : 0;
 
-  ctx.fillStyle = "#f0b07e";
-  pixelRect(-10, -43, 20, 18);
-  ctx.fillStyle = "#141014";
-  pixelRect(-14, -51, 28, 14);
-  pixelRect(-18, -43, 9, 18);
-  pixelRect(9, -43, 9, 18);
-
+  ctx.save();
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(frame, x - drawWidth / 2, y - drawHeight + 31 + bob, drawWidth, drawHeight);
   ctx.restore();
-}
-
-function pixelRect(x, y, w, h) {
-  ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
 }
 
 function update(delta) {
@@ -141,12 +146,47 @@ function update(delta) {
     state.person.x += x / length * speed;
     state.person.y += y / length * speed;
     state.person.moving = true;
+    if (Math.abs(x) > Math.abs(y)) {
+      state.person.direction = x < 0 ? "left" : "right";
+    } else {
+      state.person.direction = y < 0 ? "back" : "front";
+    }
   } else {
     state.person.moving = false;
   }
 
   state.person.x = Math.max(40, Math.min(state.width - 40, state.person.x));
   state.person.y = Math.max(80, Math.min(state.height - 46, state.person.y));
+}
+
+function prepareSpriteFrames() {
+  spriteFrames.front = makeTransparentFrame(spriteCrops.front);
+  spriteFrames.back = makeTransparentFrame(spriteCrops.back);
+  spriteFrames.left = makeTransparentFrame(spriteCrops.left);
+  spriteFrames.right = makeTransparentFrame(spriteCrops.right);
+  spriteFrames.walkDown = spriteCrops.walkDown.map(makeTransparentFrame);
+  spriteFrames.ready = true;
+}
+
+function makeTransparentFrame(crop) {
+  const frameCanvas = document.createElement("canvas");
+  frameCanvas.width = crop.w;
+  frameCanvas.height = crop.h;
+  const frameCtx = frameCanvas.getContext("2d");
+  frameCtx.drawImage(spriteImage, crop.x, crop.y, crop.w, crop.h, 0, 0, crop.w, crop.h);
+
+  const imageData = frameCtx.getImageData(0, 0, crop.w, crop.h);
+  const data = imageData.data;
+  for (let index = 0; index < data.length; index += 4) {
+    const r = data[index];
+    const g = data[index + 1];
+    const b = data[index + 2];
+    if (r < 34 && g < 34 && b < 34) {
+      data[index + 3] = 0;
+    }
+  }
+  frameCtx.putImageData(imageData, 0, 0);
+  return frameCanvas;
 }
 
 function tick(time = 0) {
@@ -169,4 +209,6 @@ window.addEventListener("keyup", (event) => {
 });
 
 resize();
+spriteImage.addEventListener("load", prepareSpriteFrames);
+if (spriteImage.complete) prepareSpriteFrames();
 requestAnimationFrame(tick);
