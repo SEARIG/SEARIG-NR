@@ -1,14 +1,16 @@
 # SEARIG-NR
 
-Interactive portfolio website for Nakul Rajawat, also known as SEARIG-NR.
+Playable portfolio website for Nakul Rajawat, also known as SEARIG-NR.
 
 ## What is included
 
 - Neon distortion intro with the SEARIG-NR name
-- Full-screen interactive portfolio map
-- Running character that travels between portfolio zones
-- Project cards for Library.exe, MLSU-LMS, College CMS, and Task48
-- Skills, experience, about, and contact sections
+- Pixel/isometric inspired portfolio island
+- Play Mode with WASD movement, Shift run, E interact, and ESC return
+- Quick Mode navigation for Home, About, Skills, Projects, Journey, and Contact
+- Project Tree with branches for Library.exe, MLSU-LMS, College CMS, Task48, and JustLocalz
+- Tech Lab stations showing where skills were actually used
+- Career Road, About Me House, Contact Tower, player HUD, controls, status panel, and resume page
 - Static GitHub Pages friendly structure
 
 ## Project links

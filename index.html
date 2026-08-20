@@ -3,152 +3,127 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>SEARIG-NR | Interactive Portfolio</title>
+    <title>SEARIG-NR | Playable Portfolio World</title>
     <meta
       name="description"
-      content="Interactive map portfolio for Nakul Rajawat, also known as SEARIG-NR. Explore projects, skills, experience, and contact details."
+      content="A playable portfolio world for Nakul Rajawat, also known as SEARIG-NR. Explore projects, skills, journey, contact, and resume through an interactive map."
     >
-    <meta property="og:title" content="SEARIG-NR | Interactive Portfolio">
+    <meta property="og:title" content="SEARIG-NR | Playable Portfolio World">
     <meta
       property="og:description"
-      content="A neon low-poly portfolio map with a running character, project zones, and SEARIG-NR identity."
+      content="Walk through a glowing portfolio island with a project tree, tech lab, developer studio, career road, and contact tower."
     >
-    <meta name="theme-color" content="#15091f">
+    <meta name="theme-color" content="#120817">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Permanent+Marker&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-    <canvas id="world" aria-label="Interactive portfolio map"></canvas>
+    <canvas id="world" aria-label="Playable SEARIG-NR portfolio world"></canvas>
 
-    <div id="distortion" class="distortion" aria-hidden="true">
-      <div class="distortion__grid"></div>
-      <div class="distortion__name" data-text="SEARIG-NR">SEARIG-NR</div>
-      <div class="distortion__scan"></div>
+    <div id="boot" class="boot" aria-hidden="true">
+      <div class="boot__grid"></div>
+      <div class="boot__name" data-text="SEARIG-NR">SEARIG-NR</div>
+      <div class="boot__sub">Portfolio world loading</div>
+      <div class="boot__scan"></div>
     </div>
 
     <header class="topbar">
-      <a class="brand" href="#home" aria-label="SEARIG-NR home">
+      <a class="brand" href="#home" data-jump="spawn" aria-label="SEARIG-NR spawn point">
+        <span class="brand__avatar" aria-hidden="true"></span>
         <span class="brand__mark">NR</span>
-        <span>SEARIG-NR</span>
+        <span><strong>SEARIG-NR</strong><small>Developer Portfolio</small></span>
       </a>
-      <nav class="nav" aria-label="Primary">
-        <a class="nav__link is-active" href="#home" data-jump="home">Home</a>
-        <a class="nav__link" href="#about" data-jump="about">About</a>
-        <a class="nav__link" href="#skills" data-jump="skills">Skills</a>
-        <a class="nav__link" href="#projects" data-jump="projects">Projects</a>
-        <a class="nav__link" href="#experience" data-jump="experience">Experience</a>
-        <a class="nav__link" href="#contact" data-jump="contact">Contact</a>
+
+      <nav class="quick-nav" aria-label="Quick mode navigation">
+        <button class="quick-nav__item is-active" type="button" data-jump="spawn">Home</button>
+        <button class="quick-nav__item" type="button" data-jump="about">About</button>
+        <button class="quick-nav__item" type="button" data-jump="skills">Skills</button>
+        <button class="quick-nav__item" type="button" data-jump="projects">Projects</button>
+        <button class="quick-nav__item" type="button" data-jump="journey">Journey</button>
+        <button class="quick-nav__item" type="button" data-jump="contact">Contact</button>
       </nav>
+
       <div class="topbar__actions">
-        <a class="resume" href="resume.html" aria-label="Open resume">Resume</a>
-        <button class="icon-button" id="themeToggle" type="button" aria-label="Toggle theme">☼</button>
+        <a class="resume-link" href="resume.html">Resume</a>
+        <button class="mode-toggle" id="modeToggle" type="button" aria-pressed="false">Play Mode</button>
       </div>
     </header>
 
-    <main class="shell">
-      <section class="hero panel" id="home">
-        <p class="eyebrow">Interactive Portfolio Map</p>
+    <main class="hud-shell">
+      <section class="intro-panel" id="home">
+        <p class="eyebrow">Spawn / Home Base</p>
         <h1>Hi, I'm <span>Nakul Rajawat</span></h1>
         <p class="role">Software Developer | Full-Stack Developer | AI Enthusiast</p>
-        <p class="intro">
-          I build web, mobile, and management applications that solve real problems
-          with clean interfaces, Firebase-backed workflows, and practical automation.
+        <div class="player-stats" aria-label="Player stats">
+          <span class="hearts" aria-label="Health">♥ ♥ ♥ ♥ ◆</span>
+          <span class="xp"><i></i></span>
+          <span>Lv. 12</span>
+        </div>
+        <p class="intro-copy">
+          Walk through my portfolio world. Visit the Project Tree, enter the Tech Lab,
+          follow my Career Road, and reach the Contact Tower.
         </p>
-        <div class="hero__actions">
-          <button class="primary-action" id="startButton" type="button">
-            Start Exploring
-            <span aria-hidden="true">›</span>
-          </button>
-          <a class="secondary-action" href="#projects" data-jump="projects">View Projects</a>
+        <div class="intro-actions">
+          <button class="primary-action" id="startButton" type="button">Start Exploring</button>
+          <button class="secondary-action" type="button" data-jump="projects">Go To Project Tree</button>
         </div>
       </section>
 
-      <aside class="hud" aria-label="Map controls">
-        <div class="minimap" aria-hidden="true">
-          <span class="minimap__point minimap__point--home"></span>
-          <span class="minimap__point minimap__point--skills"></span>
-          <span class="minimap__point minimap__point--projects"></span>
-          <span class="minimap__point minimap__point--contact"></span>
-          <span class="minimap__arrow"></span>
+      <aside class="location-panel" id="locationPanel" aria-live="polite">
+        <p class="eyebrow">Current Location</p>
+        <h2>Spawn / Home Base</h2>
+        <p>Visitor spawns here; sees name, developer title, and controls.</p>
+        <div class="location-panel__hint">Click a location or press <kbd>E</kbd> near one.</div>
+      </aside>
+
+      <aside class="controls-panel" aria-label="Controls">
+        <div>
+          <strong>Play Mode</strong>
+          <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> Move</span>
+          <span><kbd>E</kbd> Interact</span>
+          <span><kbd>Shift</kbd> Run</span>
+          <span><kbd>Esc</kbd> Menu</span>
         </div>
-        <p>Explore my world</p>
-        <small>Click a glowing location or use the menu.</small>
+        <div>
+          <strong>Quick Mode</strong>
+          <span>Use the top menu to fly to any location.</span>
+        </div>
       </aside>
 
-      <div class="section-card" id="sectionCard" aria-live="polite">
-        <p class="section-card__label">Current Zone</p>
-        <h2>Home Base</h2>
-        <p>Click Start Exploring to send the character across the portfolio map.</p>
-      </div>
-
-      <aside class="social-dock" aria-label="Social links">
-        <a href="https://github.com/SEARIG" target="_blank" rel="noreferrer" aria-label="GitHub">GH</a>
-        <a href="https://www.linkedin.com/" target="_blank" rel="noreferrer" aria-label="LinkedIn">in</a>
-        <a href="mailto:searig.nr@example.com" aria-label="Email">@</a>
+      <aside class="minimap" aria-label="World map">
+        <div class="minimap__ring">
+          <span class="dot dot--spawn"></span>
+          <span class="dot dot--about"></span>
+          <span class="dot dot--skills"></span>
+          <span class="dot dot--projects"></span>
+          <span class="dot dot--journey"></span>
+          <span class="dot dot--contact"></span>
+          <span class="avatar-dot" id="avatarDot"></span>
+        </div>
       </aside>
 
-      <section class="content" id="content" aria-label="Portfolio details">
-        <article class="content-panel" id="about">
-          <p class="eyebrow">About</p>
-          <h2>Builder focused on useful software.</h2>
-          <p>
-            I am Nakul Rajawat, a 2nd year engineering student at IET, MLSU Udaipur.
-            I have been coding for 3-5 years and building projects around library
-            systems, college management, productivity, automation, and AI-assisted development.
-          </p>
-        </article>
-
-        <article class="content-panel" id="skills">
-          <p class="eyebrow">Skills</p>
-          <h2>Tech arsenal</h2>
-          <div class="chips">
-            <span>HTML</span><span>CSS</span><span>JavaScript</span><span>Tailwind CSS</span>
-            <span>Bootstrap</span><span>Java</span><span>Python</span><span>PHP</span>
-            <span>Firebase</span><span>MySQL</span><span>SQLite</span><span>Git</span>
-            <span>Android Studio</span><span>AI Prompt Engineering</span><span>Codex</span>
-          </div>
-        </article>
-
-        <article class="content-panel content-panel--wide" id="projects">
-          <div class="content-panel__header">
-            <div>
-              <p class="eyebrow">Projects</p>
-              <h2>Major builds</h2>
-            </div>
-            <a class="text-link" href="https://github.com/SEARIG" target="_blank" rel="noreferrer">GitHub Profile</a>
-          </div>
-          <div class="projects-grid" id="projectsGrid"></div>
-        </article>
-
-        <article class="content-panel" id="experience">
-          <p class="eyebrow">Experience</p>
-          <h2>What I work on</h2>
-          <ul class="timeline">
-            <li><strong>Full-stack project development</strong><span>Web apps, admin tools, dashboards, and database-backed workflows.</span></li>
-            <li><strong>Android and Firebase systems</strong><span>Student, staff, and college management flows with role-based data.</span></li>
-            <li><strong>AI-assisted development</strong><span>Using Codex and prompt engineering to speed up debugging and implementation.</span></li>
-          </ul>
-        </article>
-
-        <article class="content-panel" id="contact">
-          <p class="eyebrow">Contact</p>
-          <h2>Let's connect</h2>
-          <p>Open to collaborations, project feedback, and software ideas that solve practical problems.</p>
-          <div class="contact-row">
-            <a href="mailto:searig.nr@example.com">Email Me</a>
-            <a href="https://github.com/SEARIG" target="_blank" rel="noreferrer">GitHub</a>
-            <a href="https://www.linkedin.com/" target="_blank" rel="noreferrer">LinkedIn</a>
-          </div>
-        </article>
-      </section>
+      <aside class="status-panel" aria-label="World status">
+        <p class="eyebrow">Status</p>
+        <span><strong>Location:</strong> <b id="statusLocation">Home Base</b></span>
+        <span><strong>Time:</strong> 09:41 PM</span>
+        <span><strong>Weather:</strong> Clear Night</span>
+        <span><strong>Coins:</strong> 125</span>
+      </aside>
     </main>
 
-    <footer class="footer">
-      <span>© 2026 SEARIG-NR</span>
-      <span>Built as an interactive map portfolio.</span>
-    </footer>
+    <section class="drawer" id="drawer" aria-live="polite" aria-hidden="true">
+      <button class="drawer__close" id="drawerClose" type="button" aria-label="Close detail panel">×</button>
+      <p class="eyebrow" id="drawerEyebrow">Project Tree</p>
+      <h2 id="drawerTitle">MLSU-LMS</h2>
+      <p id="drawerSummary"></p>
+      <div class="drawer__body" id="drawerBody"></div>
+      <div class="drawer__actions" id="drawerActions"></div>
+      <div class="drawer__hint"><kbd>ESC</kbd> Return to World</div>
+    </section>
+
+    <div class="toast" id="toast">Approach a glowing location and press E.</div>
 
     <script src="app.js"></script>
   </body>
