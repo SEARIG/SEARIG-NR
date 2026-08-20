@@ -85,45 +85,141 @@ function resize() {
 }
 
 function drawSpace() {
+  drawOcean();
+  drawIsland();
+  drawStartCircle();
+}
+
+function drawOcean() {
   const gradient = ctx.createRadialGradient(
     state.width / 2,
     state.height / 2,
-    40,
+    80,
     state.width / 2,
     state.height / 2,
-    Math.max(state.width, state.height) * 0.72
+    Math.max(state.width, state.height) * 0.82
   );
-  gradient.addColorStop(0, "#101827");
-  gradient.addColorStop(1, "#06080e");
+  gradient.addColorStop(0, "#0d2740");
+  gradient.addColorStop(0.55, "#061a2d");
+  gradient.addColorStop(1, "#030a15");
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, state.width, state.height);
 
   ctx.save();
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.045)";
-  ctx.lineWidth = 1;
-  const grid = 54;
-  const offset = (state.time * 0.012) % grid;
-  for (let x = -grid; x <= state.width + grid; x += grid) {
-    ctx.beginPath();
-    ctx.moveTo(x + offset, 0);
-    ctx.lineTo(x + offset, state.height);
-    ctx.stroke();
-  }
-  for (let y = -grid; y <= state.height + grid; y += grid) {
-    ctx.beginPath();
-    ctx.moveTo(0, y + offset);
-    ctx.lineTo(state.width, y + offset);
-    ctx.stroke();
+  ctx.strokeStyle = "rgba(87, 178, 223, 0.18)";
+  ctx.lineWidth = 2;
+  const offset = (state.time * 0.025) % 96;
+  for (let y = 34; y < state.height; y += 38) {
+    for (let x = -110; x < state.width + 120; x += 96) {
+      ctx.beginPath();
+      ctx.moveTo(x + offset, y);
+      ctx.quadraticCurveTo(x + 24 + offset, y - 8, x + 48 + offset, y);
+      ctx.quadraticCurveTo(x + 72 + offset, y + 8, x + 96 + offset, y);
+      ctx.stroke();
+    }
   }
   ctx.restore();
+}
+
+function islandGeometry() {
+  return {
+    x: state.width / 2,
+    y: state.height / 2 + 38,
+    rx: Math.min(state.width * 0.45, 680),
+    ry: Math.min(state.height * 0.37, 350)
+  };
+}
+
+function drawIsland() {
+  const island = islandGeometry();
 
   ctx.save();
-  ctx.strokeStyle = "rgba(37, 242, 193, 0.28)";
+  ctx.shadowColor = "rgba(0, 0, 0, 0.55)";
+  ctx.shadowBlur = 44;
+  ctx.fillStyle = "#7f683f";
+  organicIslandPath(island.x, island.y + 16, island.rx + 34, island.ry + 30);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+
+  ctx.fillStyle = "#d2a85e";
+  organicIslandPath(island.x, island.y + 4, island.rx + 18, island.ry + 14);
+  ctx.fill();
+
+  const grass = ctx.createRadialGradient(island.x, island.y - 40, 40, island.x, island.y, island.rx);
+  grass.addColorStop(0, "#4fa34f");
+  grass.addColorStop(0.62, "#27713d");
+  grass.addColorStop(1, "#185331");
+  ctx.fillStyle = grass;
+  organicIslandPath(island.x, island.y - 8, island.rx, island.ry);
+  ctx.fill();
+
+  ctx.strokeStyle = "rgba(180, 255, 185, 0.18)";
+  ctx.lineWidth = 2;
+  organicIslandPath(island.x, island.y - 8, island.rx, island.ry);
+  ctx.stroke();
+
+  drawIslandTexture(island);
+  ctx.restore();
+}
+
+function organicIslandPath(cx, cy, rx, ry) {
+  ctx.beginPath();
+  const steps = 44;
+  for (let index = 0; index <= steps; index += 1) {
+    const angle = (Math.PI * 2 * index) / steps;
+    const wobble = 1 + Math.sin(angle * 3.1) * 0.045 + Math.cos(angle * 5.4) * 0.035;
+    const x = cx + Math.cos(angle) * rx * wobble;
+    const y = cy + Math.sin(angle) * ry * wobble;
+    if (index === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+}
+
+function drawIslandTexture(island) {
+  ctx.save();
+  ctx.globalAlpha = 0.5;
+  for (let index = 0; index < 90; index += 1) {
+    const angle = index * 2.399;
+    const radius = Math.sqrt((index * 37) % 100) / 10;
+    const x = island.x + Math.cos(angle) * island.rx * radius * 0.86;
+    const y = island.y - 8 + Math.sin(angle) * island.ry * radius * 0.78;
+    if (!isInsideIsland(x, y)) continue;
+    ctx.fillStyle = index % 4 === 0 ? "rgba(20, 75, 33, 0.45)" : "rgba(129, 179, 82, 0.22)";
+    ctx.beginPath();
+    ctx.ellipse(x, y, 4 + (index % 3) * 2, 2 + (index % 2), 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawStartCircle() {
+  const x = state.width / 2;
+  const y = state.height / 2 + 26;
+
+  ctx.save();
+  ctx.fillStyle = "rgba(8, 13, 22, 0.24)";
+  ctx.beginPath();
+  ctx.ellipse(x, y + 10, 154, 62, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = "rgba(37, 242, 193, 0.34)";
+  ctx.lineWidth = 8;
+  ctx.beginPath();
+  ctx.ellipse(x, y, 150, 62, 0, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.28)";
   ctx.lineWidth = 2;
   ctx.setLineDash([10, 16]);
   ctx.beginPath();
-  ctx.ellipse(state.width / 2, state.height / 2 + 26, 150, 62, 0, 0, Math.PI * 2);
+  ctx.ellipse(x, y, 150, 62, 0, 0, Math.PI * 2);
   ctx.stroke();
+
+  ctx.fillStyle = "rgba(37, 242, 193, 0.08)";
+  ctx.beginPath();
+  ctx.ellipse(x, y, 132, 52, 0, 0, Math.PI * 2);
+  ctx.fill();
   ctx.restore();
 }
 
@@ -192,6 +288,26 @@ function update(delta) {
 
   state.person.x = Math.max(40, Math.min(state.width - 40, state.person.x));
   state.person.y = Math.max(80, Math.min(state.height - 46, state.person.y));
+  keepPersonOnIsland();
+}
+
+function keepPersonOnIsland() {
+  if (isInsideIsland(state.person.x, state.person.y + 12)) return;
+
+  const island = islandGeometry();
+  const dx = state.person.x - island.x;
+  const dy = state.person.y + 12 - (island.y - 8);
+  const ratio = Math.sqrt((dx * dx) / (island.rx * island.rx) + (dy * dy) / (island.ry * island.ry));
+  const safeRatio = Math.max(ratio, 1);
+  state.person.x = island.x + dx / safeRatio * 0.96;
+  state.person.y = island.y - 8 + dy / safeRatio * 0.96 - 12;
+}
+
+function isInsideIsland(x, y) {
+  const island = islandGeometry();
+  const dx = x - island.x;
+  const dy = y - (island.y - 8);
+  return (dx * dx) / (island.rx * island.rx) + (dy * dy) / (island.ry * island.ry) <= 1;
 }
 
 function prepareSpriteFrames() {
@@ -216,13 +332,48 @@ function makeTransparentFrame(image, crop) {
 
   const imageData = frameCtx.getImageData(0, 0, crop.w, crop.h);
   const data = imageData.data;
-  for (let index = 0; index < data.length; index += 4) {
+  const transparent = new Uint8Array(crop.w * crop.h);
+  const queue = [];
+  const isProtectedCharacterPixel = (x, y) => {
+    const dx = (x - crop.w / 2) / (crop.w * 0.34);
+    const dy = (y - crop.h * 0.55) / (crop.h * 0.43);
+    const hairDx = (x - crop.w / 2) / (crop.w * 0.3);
+    const hairDy = (y - crop.h * 0.25) / (crop.h * 0.18);
+    return dx * dx + dy * dy <= 1 || hairDx * hairDx + hairDy * hairDy <= 1;
+  };
+  const enqueue = (x, y) => {
+    if (x < 0 || y < 0 || x >= crop.w || y >= crop.h) return;
+    const pixel = y * crop.w + x;
+    if (transparent[pixel]) return;
+    if (isProtectedCharacterPixel(x, y)) return;
+    const index = pixel * 4;
     const r = data[index];
     const g = data[index + 1];
     const b = data[index + 2];
-    if (r < 34 && g < 34 && b < 34) {
-      data[index + 3] = 0;
-    }
+    if (r > 34 || g > 34 || b > 34) return;
+    transparent[pixel] = 1;
+    queue.push([x, y]);
+  };
+
+  for (let x = 0; x < crop.w; x += 1) {
+    enqueue(x, 0);
+    enqueue(x, crop.h - 1);
+  }
+  for (let y = 0; y < crop.h; y += 1) {
+    enqueue(0, y);
+    enqueue(crop.w - 1, y);
+  }
+
+  while (queue.length) {
+    const [x, y] = queue.pop();
+    enqueue(x + 1, y);
+    enqueue(x - 1, y);
+    enqueue(x, y + 1);
+    enqueue(x, y - 1);
+  }
+
+  for (let pixel = 0; pixel < transparent.length; pixel += 1) {
+    if (transparent[pixel]) data[pixel * 4 + 3] = 0;
   }
   frameCtx.putImageData(imageData, 0, 0);
   return frameCanvas;
