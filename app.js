@@ -7,6 +7,8 @@ const sideWalkImage = new Image();
 sideWalkImage.src = "assets/nr-side-walk-sprite.png";
 const backWalkImage = new Image();
 backWalkImage.src = "assets/nr-back-walk-sprite.png";
+const diagonalWalkImage = new Image();
+diagonalWalkImage.src = "assets/nr-diagonal-walk-sprite.png";
 
 const spriteFrames = {
   ready: false,
@@ -17,7 +19,11 @@ const spriteFrames = {
   walkDown: [],
   walkLeft: [],
   walkRight: [],
-  walkBack: []
+  walkBack: [],
+  walkUpRight: [],
+  walkUpLeft: [],
+  walkDownLeft: [],
+  walkDownRight: []
 };
 
 const state = {
@@ -65,6 +71,34 @@ const spriteCrops = {
     { x: 780, y: 170, w: 230, h: 490 },
     { x: 1130, y: 170, w: 230, h: 490 },
     { x: 1480, y: 170, w: 230, h: 490 }
+  ],
+  walkUpRight: [
+    { x: 58, y: 160, w: 128, h: 236 },
+    { x: 190, y: 160, w: 128, h: 236 },
+    { x: 320, y: 160, w: 128, h: 236 },
+    { x: 452, y: 160, w: 128, h: 236 },
+    { x: 584, y: 160, w: 128, h: 236 }
+  ],
+  walkUpLeft: [
+    { x: 796, y: 160, w: 128, h: 236 },
+    { x: 928, y: 160, w: 128, h: 236 },
+    { x: 1060, y: 160, w: 128, h: 236 },
+    { x: 1192, y: 160, w: 128, h: 236 },
+    { x: 1324, y: 160, w: 128, h: 236 }
+  ],
+  walkDownLeft: [
+    { x: 50, y: 600, w: 140, h: 236 },
+    { x: 182, y: 600, w: 140, h: 236 },
+    { x: 315, y: 600, w: 140, h: 236 },
+    { x: 448, y: 600, w: 140, h: 236 },
+    { x: 580, y: 600, w: 140, h: 236 }
+  ],
+  walkDownRight: [
+    { x: 785, y: 600, w: 140, h: 236 },
+    { x: 918, y: 600, w: 140, h: 236 },
+    { x: 1050, y: 600, w: 140, h: 236 },
+    { x: 1183, y: 600, w: 140, h: 236 },
+    { x: 1316, y: 600, w: 140, h: 236 }
   ]
 };
 
@@ -245,11 +279,31 @@ function drawPerson() {
   } else if (moving && direction === "back") {
     const index = Math.floor(state.time / 120) % spriteFrames.walkBack.length;
     frame = spriteFrames.walkBack[index];
+  } else if (moving && direction === "upRight") {
+    const index = Math.floor(state.time / 120) % spriteFrames.walkUpRight.length;
+    frame = spriteFrames.walkUpRight[index];
+  } else if (moving && direction === "upLeft") {
+    const index = Math.floor(state.time / 120) % spriteFrames.walkUpLeft.length;
+    frame = spriteFrames.walkUpLeft[index];
+  } else if (moving && direction === "downLeft") {
+    const index = Math.floor(state.time / 120) % spriteFrames.walkDownLeft.length;
+    frame = spriteFrames.walkDownLeft[index];
+  } else if (moving && direction === "downRight") {
+    const index = Math.floor(state.time / 120) % spriteFrames.walkDownRight.length;
+    frame = spriteFrames.walkDownRight[index];
   } else if (direction === "back") {
     frame = spriteFrames.back;
   } else if (direction === "left") {
     frame = spriteFrames.left;
   } else if (direction === "right") {
+    frame = spriteFrames.right;
+  } else if (direction === "upLeft") {
+    frame = spriteFrames.left;
+  } else if (direction === "upRight") {
+    frame = spriteFrames.right;
+  } else if (direction === "downLeft") {
+    frame = spriteFrames.left;
+  } else if (direction === "downRight") {
     frame = spriteFrames.right;
   }
 
@@ -277,7 +331,15 @@ function update(delta) {
     state.person.x += x / length * speed;
     state.person.y += y / length * speed;
     state.person.moving = true;
-    if (Math.abs(x) > Math.abs(y)) {
+    if (x > 0 && y < 0) {
+      state.person.direction = "upRight";
+    } else if (x < 0 && y < 0) {
+      state.person.direction = "upLeft";
+    } else if (x < 0 && y > 0) {
+      state.person.direction = "downLeft";
+    } else if (x > 0 && y > 0) {
+      state.person.direction = "downRight";
+    } else if (Math.abs(x) > Math.abs(y)) {
       state.person.direction = x < 0 ? "left" : "right";
     } else {
       state.person.direction = y < 0 ? "back" : "front";
@@ -311,7 +373,7 @@ function isInsideIsland(x, y) {
 }
 
 function prepareSpriteFrames() {
-  if (!spriteImage.complete || !sideWalkImage.complete || !backWalkImage.complete) return;
+  if (!spriteImage.complete || !sideWalkImage.complete || !backWalkImage.complete || !diagonalWalkImage.complete) return;
   spriteFrames.front = makeTransparentFrame(spriteImage, spriteCrops.front);
   spriteFrames.back = makeTransparentFrame(spriteImage, spriteCrops.back);
   spriteFrames.left = makeTransparentFrame(spriteImage, spriteCrops.left);
@@ -320,6 +382,10 @@ function prepareSpriteFrames() {
   spriteFrames.walkLeft = spriteCrops.walkLeft.map((crop) => makeTransparentFrame(sideWalkImage, crop));
   spriteFrames.walkRight = spriteCrops.walkRight.map((crop) => makeTransparentFrame(sideWalkImage, crop));
   spriteFrames.walkBack = spriteCrops.walkBack.map((crop) => makeTransparentFrame(backWalkImage, crop));
+  spriteFrames.walkUpRight = spriteCrops.walkUpRight.map((crop) => makeTransparentFrame(diagonalWalkImage, crop));
+  spriteFrames.walkUpLeft = spriteCrops.walkUpLeft.map((crop) => makeTransparentFrame(diagonalWalkImage, crop));
+  spriteFrames.walkDownLeft = spriteCrops.walkDownLeft.map((crop) => makeTransparentFrame(diagonalWalkImage, crop));
+  spriteFrames.walkDownRight = spriteCrops.walkDownRight.map((crop) => makeTransparentFrame(diagonalWalkImage, crop));
   spriteFrames.ready = true;
 }
 
@@ -402,7 +468,9 @@ resize();
 spriteImage.addEventListener("load", prepareSpriteFrames);
 sideWalkImage.addEventListener("load", prepareSpriteFrames);
 backWalkImage.addEventListener("load", prepareSpriteFrames);
+diagonalWalkImage.addEventListener("load", prepareSpriteFrames);
 if (spriteImage.complete) prepareSpriteFrames();
 if (sideWalkImage.complete) prepareSpriteFrames();
 if (backWalkImage.complete) prepareSpriteFrames();
+if (diagonalWalkImage.complete) prepareSpriteFrames();
 requestAnimationFrame(tick);
