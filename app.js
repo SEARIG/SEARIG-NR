@@ -197,6 +197,8 @@ const state = {
   scale: 1,
   offsetX: 0,
   offsetY: 0,
+  cameraX: player.x,
+  cameraY: player.y,
   time: 0,
   last: 0,
   keys: new Set(),
@@ -204,6 +206,9 @@ const state = {
   hover: null,
   modalOpen: false
 };
+
+const mapImage = new Image();
+mapImage.src = "assets/portfolio-game-map.png";
 
 function resize() {
   state.dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -215,9 +220,7 @@ function resize() {
   canvas.style.height = `${state.height}px`;
   ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
 
-  state.scale = Math.min(state.width / imageSize.width, state.height / imageSize.height);
-  state.offsetX = (state.width - imageSize.width * state.scale) / 2;
-  state.offsetY = (state.height - imageSize.height * state.scale) / 2;
+  updateCamera();
 }
 
 function imageToScreen(x, y) {
@@ -275,9 +278,89 @@ function movePlayer(delta) {
   player.y = Math.max(85, Math.min(955, player.y));
 }
 
+function updateCamera() {
+  const base = Math.max(state.width / imageSize.width, state.height / imageSize.height);
+  const zoom = state.width < 760 ? 1.42 : 1.28;
+  state.scale = base * zoom;
+
+  const visibleW = state.width / state.scale;
+  const visibleH = state.height / state.scale;
+  state.cameraX += (player.x - 165 - state.cameraX) * 0.09;
+  state.cameraY += (player.y - 55 - state.cameraY) * 0.09;
+  state.cameraX = Math.max(visibleW / 2, Math.min(imageSize.width - visibleW / 2, state.cameraX));
+  state.cameraY = Math.max(visibleH / 2, Math.min(imageSize.height - visibleH / 2, state.cameraY));
+  state.offsetX = state.width / 2 - state.cameraX * state.scale;
+  state.offsetY = state.height / 2 - state.cameraY * state.scale;
+}
+
+function drawMap() {
+  if (!mapImage.complete) return;
+  ctx.drawImage(
+    mapImage,
+    state.offsetX,
+    state.offsetY,
+    imageSize.width * state.scale,
+    imageSize.height * state.scale
+  );
+  patchStaticPlayer();
+  drawProjectExperienceStats();
+}
+
+function patchStaticPlayer() {
+  if (!mapImage.complete) return;
+  if (Math.hypot(player.x - 770, player.y - 515) < 12) return;
+  drawImagePatch(820, 452, 74, 94, 728, 452, 74, 94);
+  const p = imageToScreen(728, 452);
+  const s = state.scale;
+  ctx.save();
+  ctx.globalAlpha = 0.35;
+  ctx.fillStyle = "#2f6f35";
+  ctx.fillRect(p.x + 6 * s, p.y + 46 * s, 55 * s, 33 * s);
+  ctx.fillStyle = "#8c6b3e";
+  ctx.fillRect(p.x + 8 * s, p.y + 10 * s, 58 * s, 38 * s);
+  ctx.restore();
+}
+
+function drawImagePatch(sx, sy, sw, sh, dx, dy, dw, dh) {
+  const p = imageToScreen(dx, dy);
+  ctx.drawImage(mapImage, sx, sy, sw, sh, p.x, p.y, dw * state.scale, dh * state.scale);
+}
+
+function drawProjectExperienceStats() {
+  const p = imageToScreen(32, 286);
+  const s = state.scale;
+  ctx.save();
+  ctx.fillStyle = "rgba(3, 8, 14, 0.86)";
+  roundRect(p.x, p.y, 300 * s, 86 * s, 8 * s);
+  ctx.fill();
+
+  ctx.fillStyle = "#ffd35a";
+  ctx.shadowColor = "rgba(255, 211, 90, 0.7)";
+  ctx.shadowBlur = 8 * s;
+  ctx.font = `900 ${25 * s}px Inter, sans-serif`;
+  ctx.textBaseline = "top";
+  ctx.fillText("★★★★★", p.x + 8 * s, p.y + 6 * s);
+
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = "#fff";
+  ctx.font = `800 ${13 * s}px Inter, sans-serif`;
+  ctx.fillText("5 Major Projects", p.x + 8 * s, p.y + 38 * s);
+
+  ctx.fillStyle = "rgba(255, 255, 255, 0.12)";
+  roundRect(p.x + 8 * s, p.y + 62 * s, 178 * s, 9 * s, 5 * s);
+  ctx.fill();
+  ctx.fillStyle = "#7dff5b";
+  roundRect(p.x + 8 * s, p.y + 62 * s, 132 * s, 9 * s, 5 * s);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+  ctx.font = `800 ${11 * s}px Inter, sans-serif`;
+  ctx.fillText("3-4 yrs developing", p.x + 196 * s, p.y + 58 * s);
+  ctx.restore();
+}
+
 function drawPlayer() {
   const p = imageToScreen(player.x, player.y);
-  const s = Math.max(0.72, state.scale);
+  const s = Math.max(0.62, state.scale * 0.82);
   const step = Math.sin(state.time * (player.moving ? 0.018 : 0.006));
 
   ctx.save();
@@ -286,42 +369,42 @@ function drawPlayer() {
 
   ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
   ctx.beginPath();
-  ctx.ellipse(0, 29, 22, 8, 0, 0, Math.PI * 2);
+  ctx.ellipse(0, 30, 20, 8, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.strokeStyle = "#0a0d14";
-  ctx.lineWidth = 7;
+  ctx.strokeStyle = "#10131a";
+  ctx.lineWidth = 6;
   ctx.lineCap = "round";
   ctx.beginPath();
-  ctx.moveTo(-6, 8);
-  ctx.lineTo(-14 * step, 25);
-  ctx.moveTo(6, 8);
-  ctx.lineTo(14 * step, 25);
+  ctx.moveTo(-5, 6);
+  ctx.lineTo(-10 - 6 * step, 25);
+  ctx.moveTo(5, 6);
+  ctx.lineTo(10 + 6 * step, 25);
   ctx.stroke();
 
-  ctx.strokeStyle = "#0b1621";
-  ctx.lineWidth = 6;
+  ctx.strokeStyle = "#e5b084";
+  ctx.lineWidth = 5;
   ctx.beginPath();
-  ctx.moveTo(-8, -7);
-  ctx.lineTo(-18 * step, 6);
-  ctx.moveTo(8, -7);
-  ctx.lineTo(18 * step, 6);
+  ctx.moveTo(-12, -8);
+  ctx.lineTo(-20 - 4 * step, 7);
+  ctx.moveTo(12, -8);
+  ctx.lineTo(20 + 4 * step, 7);
   ctx.stroke();
 
-  ctx.fillStyle = "#0f1c2b";
-  pixelRect(-12, -22, 24, 32);
-  ctx.fillStyle = "#20f0bd";
-  ctx.font = "900 9px Inter, sans-serif";
-  ctx.textAlign = "center";
-  ctx.fillText("NR", 0, -4);
+  ctx.fillStyle = "#172232";
+  pixelRect(-12, -23, 24, 34);
+  ctx.fillStyle = "#243a55";
+  pixelRect(-8, -19, 16, 24);
+  ctx.fillStyle = "#1e2632";
+  pixelRect(-9, 11, 8, 18);
+  pixelRect(1, 11, 8, 18);
 
   ctx.fillStyle = "#f0b07e";
-  pixelRect(-10, -40, 20, 18);
+  pixelRect(-10, -42, 20, 18);
   ctx.fillStyle = "#141014";
-  pixelRect(-14, -47, 28, 12);
-  ctx.fillStyle = "#05070b";
-  pixelRect(-6, -33, 4, 4);
-  pixelRect(4, -33, 4, 4);
+  pixelRect(-14, -50, 28, 14);
+  pixelRect(-18, -42, 9, 18);
+  pixelRect(9, -42, 9, 18);
   ctx.restore();
 }
 
@@ -331,6 +414,7 @@ function pixelRect(x, y, w, h) {
 
 function drawOverlay() {
   ctx.clearRect(0, 0, state.width, state.height);
+  drawMap();
   drawHover();
   drawPlayer();
 }
@@ -447,6 +531,7 @@ function tick(time = 0) {
   state.time = time;
   state.last = time;
   if (!state.modalOpen) movePlayer(delta);
+  updateCamera();
   drawOverlay();
   requestAnimationFrame(tick);
 }
@@ -489,4 +574,5 @@ function bindEvents() {
 
 resize();
 bindEvents();
-requestAnimationFrame(tick);
+mapImage.addEventListener("load", () => requestAnimationFrame(tick));
+if (mapImage.complete) requestAnimationFrame(tick);
